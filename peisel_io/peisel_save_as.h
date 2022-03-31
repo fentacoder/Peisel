@@ -23,6 +23,7 @@ under the License.
 #include <fstream>
 #include <png.h>
 #include "../peisel_state.h"
+#include "peisel_save_tiles.h"
 
 bool PeiselExit(pen::ui::Item* item, int button, int action) {
 	/*Terminates the program*/
@@ -91,10 +92,6 @@ void SavePng(pen::ui::Item* item, std::string fileName, bool confirmed) {
 
 			fclose(fp);
 
-			PeiselState::Get()->outputFile = fileName;
-			PeiselState::Get()->changes = false;
-			PeiselState::Get()->saveBox->SetColor(pen::PEN_GREEN);
-
 			if (item != nullptr) {
 				if (optionList.data != nullptr) {
 					pen::ui::RemoveItem(optionList.data);
@@ -102,7 +99,33 @@ void SavePng(pen::ui::Item* item, std::string fileName, bool confirmed) {
 				}
 				pen::ui::RemoveItem(item);	
 			}
+		}
+	}
+}
+
+void SaveSelect(pen::ui::Item* item, std::string fileName, bool confirmed) {
+	if (confirmed) {
+		switch (PeiselState::Get()->appMode) {
+		case PEISEL_DRAW:
+		case PEISEL_SHEET:
+			SavePng(item, fileName, confirmed);
+			PeiselState::Get()->outputFile = fileName;
+			PeiselState::Get()->changes = false;
+			PeiselState::Get()->saveBox->SetColor(pen::PEN_GREEN);
 			pen::ui::Submit();
+			break;
+		case PEISEL_TILES:
+			PrepareTilesPixelBuffer();
+			/*File modal gets removed in SavePng so no need to pass it in to SaveTiles*/
+			SavePng(item, fileName, confirmed);
+			SaveTiles(nullptr, fileName, confirmed);
+			PeiselState::Get()->outputFile = fileName;
+			PeiselState::Get()->changes = false;
+			PeiselState::Get()->saveBox->SetColor(pen::PEN_GREEN);
+			pen::ui::Submit();
+			break;
+		default:
+			break;
 		}
 	}
 }
@@ -112,11 +135,29 @@ bool SaveAs(pen::ui::Item* item, int button, int action) {
 	if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::PRESSED) {
 		if (PeiselState::Get()->outputFile == "") {
 			/*Grab the user specified file path*/
-			pen::ui::Item* fileModal = pen::ui::AddItem(new pen::ui::FileModal(ID_ANY, pen::ui::FILE_INTENT::SAVE_AS, ".png", pen::PEN_RED, pen::PEN_WHITE, nullptr, &SavePng));
+			pen::ui::Item* fileModal = pen::ui::AddItem(new pen::ui::FileModal(ID_ANY, pen::ui::FILE_INTENT::SAVE_AS, ".png", pen::PEN_RED, pen::PEN_WHITE, nullptr, &SaveSelect));
 			pen::ui::Submit();
 		}
 		else {
-			SavePng(nullptr, PeiselState::Get()->outputFile, true);
+			switch (PeiselState::Get()->appMode) {
+			case PEISEL_DRAW:
+			case PEISEL_SHEET:
+				SavePng(nullptr, PeiselState::Get()->outputFile, true);
+				PeiselState::Get()->changes = false;
+				PeiselState::Get()->saveBox->SetColor(pen::PEN_GREEN);
+				pen::ui::Submit();
+				break;
+			case PEISEL_TILES:
+				PrepareTilesPixelBuffer();
+				SavePng(nullptr, PeiselState::Get()->outputFile, true);
+				SaveTiles(nullptr, PeiselState::Get()->outputFile, true);
+				PeiselState::Get()->changes = false;
+				PeiselState::Get()->saveBox->SetColor(pen::PEN_GREEN);
+				pen::ui::Submit();
+				break;
+			default:
+				break;
+			}
 		}
 	}
 	return true;

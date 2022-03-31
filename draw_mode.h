@@ -224,7 +224,7 @@ void PeiselUpdateLine(pen::Item* data, int startX, int startY, int endX, int end
     }
 }
 
-void UpdateCanvas() {
+void UpdateDrawCanvas() {
     /*Redraws all of the buffer data*/
     PeiselState* peiselState = PeiselState::Get();
     if (peiselState->updateCanvas) {
@@ -252,6 +252,7 @@ void UpdateEditBox(bool finished) {
 }
 
 PeiselShape* DrawHandleClick(PeiselState* peiselState, int& x, int& y) {
+    /*Handles the click in the canvas*/
     pen::Pen::GetMousePos(peiselState->mouseXPtr, peiselState->mouseYPtr);
 
     if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::Pen::ScreenWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) {
@@ -292,7 +293,9 @@ PeiselShape* DrawHandleClick(PeiselState* peiselState, int& x, int& y) {
     return nullptr;
 }
 
-bool Paint() {
+bool PaintDraw() {
+    /*Handles the click events in draw mode*/
+
     /*Check for click within the bounds of the drawing container*/
     int x = 0;
     int y = 0;
@@ -475,6 +478,7 @@ bool Paint() {
 }
 
 void DrawMode() {
+    /*Continues an ongoing event in draw mode*/
     if (PeiselState::Get()->penActive) {
         PeiselState* peiselState = PeiselState::Get();
         pen::Pen::GetMousePos(peiselState->mouseXPtr, peiselState->mouseYPtr);

@@ -82,7 +82,7 @@ void CreateSpriteSheet(pen::ui::Item* item, std::string fileName, bool confirmed
 
 			/*Load in each path*/
 			prevPath = path;
-			peiselState->sprites.push_back(pen::CreateSprite(0, 0, 150, 75, pen::PEN_WHITE, path));
+			peiselState->sprites.push_back(pen::CreateSprite(0, 0, 150, 75, path));
 		}
 
 		/*Create a square grid based on the number of sprites loaded*/

@@ -38,6 +38,12 @@ struct PeiselShape {
     float scaleY = 1.0f;
 };
 
+/*For tile sprites*/
+struct PeiselTileSprite {
+    pen::Item* item;
+    int tile;
+};
+
 class PeiselState {
     static PeiselState* instance;
 public:
@@ -75,6 +81,20 @@ public:
     std::vector<pen::Item*> sprites;
     pen::ui::Item* spriteFileModal = nullptr;
     /*----Sprite Sheet Mode----*/
+
+    /*----Tile Mode----*/
+    char* tiles = nullptr;
+    int tileSize = TILES_10;
+    std::vector<std::string> selectableTileSprites;
+    std::vector<PeiselTileSprite> tileSprites;
+    std::vector<PeiselTileSprite> collisionBoxes;
+    std::string selectedTileSpriteName = "";
+    pen::ui::Item* selectedTileSprite = nullptr;
+    int selectedTileSlot = 0;
+    unsigned char* tileBackground = nullptr;
+    bool updateCurrentTile = false;
+    pen::Item* currentTile = nullptr;
+    /*----Tile Mode----*/
 
 public:
     static PeiselState* Get() {

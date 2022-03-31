@@ -23,8 +23,23 @@ under the License.
 #include "nav_bar.h"
 #include "draw_mode.h"
 #include "peisel_sheet_mode.h"
+#include "tile_mode.h"
 
 PeiselState* PeiselState::instance = nullptr;
+
+bool Paint() {
+    switch (PeiselState::Get()->appMode) {
+    case PEISEL_DRAW:
+        PaintDraw();
+        break;
+    case PEISEL_TILES:
+        PaintTiles();
+        break;
+    default:
+        break;
+    }
+    return true;
+}
 
 class App : public pen::Pen {
 public:
@@ -45,10 +60,14 @@ public:
         switch (PeiselState::Get()->appMode) {
         case PEISEL_DRAW:
             DrawMode();
-            UpdateCanvas();
+            UpdateDrawCanvas();
             break;
         case PEISEL_SHEET:
             OnSpriteSheetMode();
+            break;
+        case PEISEL_TILES:
+            TileMode();
+            UpdateTileCanvas();
             break;
         default:
             break;
@@ -93,7 +112,25 @@ public:
     }
 
     void OnInput() override {
-        
+        switch (PeiselState::Get()->appMode) {
+        case PEISEL_TILES:
+            if (pen::Pen::MouseState(pen::in::KEYS::TAB) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::TAB) == pen::in::KEYS::HELD) {
+                if (PeiselState::Get()->spriteSelect && PeiselState::Get()->spritesLoaded) {
+                    if (PeiselState::Get()->selectedTileSlot == PeiselState::Get()->selectableTileSprites.size() - 1) {
+                        PeiselState::Get()->selectedTileSlot = 0;
+                    }
+                    else {
+                        PeiselState::Get()->selectedTileSlot++;
+                    }
+                    PeiselState::Get()->selectedTileSpriteName = PeiselState::Get()->selectableTileSprites[PeiselState::Get()->selectedTileSlot];
+                    PeiselState::Get()->selectedTileSprite->UpdateText(PeiselState::Get()->selectedTileSpriteName);
+                    pen::ui::Submit();
+                }
+            }
+            break;
+        default:
+            break;
+        }
     }
 
     void OnRender() override {
@@ -101,7 +138,7 @@ public:
 
         while (pen::Pen::Running())
         {
-            pen::Pen::OnInput();
+            OnInput();
             renderer.Clear();
             if(pen::Render::Get()->firstTime) renderer.Background(pen::PEN_WHITE);
 

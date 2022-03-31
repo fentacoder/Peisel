@@ -45,7 +45,15 @@ bool SelectMode(pen::ui::Item* item, int button, int action) {
             peiselState->navBar->childItems[3]->AllowActive(true);
             peiselState->navBar->childItems[4]->AllowActive(true);
 
-            if(peiselState->spriteFileModal != nullptr) pen::ui::RemoveItem(peiselState->spriteFileModal);
+            if (peiselState->spriteFileModal != nullptr) {
+                pen::ui::RemoveItem(peiselState->spriteFileModal);
+                peiselState->spriteFileModal = nullptr;
+            }
+
+            if (peiselState->selectedTileSprite != nullptr) {
+                pen::ui::RemoveItem(peiselState->selectedTileSprite);
+                peiselState->selectedTileSprite = nullptr;
+            }
         }
         else if (item->origText == "Sprite Sheet" && peiselState->appMode != PEISEL_SHEET) {
             /*Sprite sheet mode for combining sprites into one png*/
@@ -59,9 +67,57 @@ bool SelectMode(pen::ui::Item* item, int button, int action) {
             peiselState->navBar->childItems[2]->AllowActive(false);
             peiselState->navBar->childItems[3]->AllowActive(false);
             peiselState->navBar->childItems[4]->AllowActive(false);
+
+            if (peiselState->spriteFileModal != nullptr) {
+                pen::ui::RemoveItem(peiselState->spriteFileModal);
+                peiselState->spriteFileModal = nullptr;
+            }
+
+            if (peiselState->selectedTileSprite != nullptr) {
+                pen::ui::RemoveItem(peiselState->selectedTileSprite);
+                peiselState->selectedTileSprite = nullptr;
+            }
+        }
+        else if (item->origText == "Tile Map" && peiselState->appMode != PEISEL_TILES) {
+            peiselState->tool = PEISEL_BRUSH;
+            peiselState->appMode = PEISEL_TILES;
+            peiselState->outputFile = "";
+            peiselState->changes = false;
+            peiselState->currentColorBox->AllowActive(false);
+            std::memset(pen::PixelBuffer(), 0, pen::PixelBufferWidth() * pen::PixelBufferHeight() * 4);
+            peiselState->navBar->childItems[1]->AllowActive(false);
+            peiselState->navBar->childItems[2]->AllowActive(false);
+            peiselState->navBar->childItems[3]->AllowActive(false);
+            peiselState->navBar->childItems[4]->AllowActive(true);
+
+            if (peiselState->tileBackground == nullptr) {
+                peiselState->tileBackground = new unsigned char[pen::PixelBufferWidth() * pen::PixelBufferHeight() * 4];
+
+                for (int y = 0; y < pen::PixelBufferHeight(); y++) {
+                    for (int x = 0; x < pen::PixelBufferWidth(); x++) {
+                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4)] = (unsigned char)(255 * pen::PEN_WHITE.x);
+                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4) + 1] = (unsigned char)(255 * pen::PEN_WHITE.y);
+                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4) + 2] = (unsigned char)(255 * pen::PEN_WHITE.z);
+                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4) + 3] = (unsigned char)(255 * pen::PEN_WHITE.w);
+                    }
+                }
+            }
+
+            if (peiselState->spriteFileModal != nullptr) {
+                pen::ui::RemoveItem(peiselState->spriteFileModal);
+                peiselState->spriteFileModal = nullptr;
+            }
+
+            if (peiselState->selectedTileSprite == nullptr) {
+                peiselState->selectedTileSprite = pen::ui::AddItem(new pen::ui::TextBox(ID_ANY, "",
+                    pen::Vec3(pen::Pen::ScreenWidth() / 5.0f * 3.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f),
+                    30, pen::PEN_TRANSPARENT, pen::PEN_BLACK, nullptr, nullptr, true));
+            }
         }
         peiselState->currentColorBox->SetColor(pen::PEN_LIGHT_GRAY);
         peiselState->saveBox->SetColor(pen::PEN_RED);
+        peiselState->spritesLoaded = false;
+        peiselState->spriteSelect = false;
         pen::ui::RemoveItem(optionList.data);
         optionList = { "", nullptr };
         pen::ui::Submit();
@@ -178,17 +234,41 @@ bool SelectBrushSize(pen::ui::Item* item, int button, int action) {
     /*Updates the brush size*/
     if (button == pen::in::KEYS::MOUSE_LEFT && action == pen::in::KEYS::PRESSED) {
         PeiselState::Get()->appState = DRAW_BRUSHING;
-        if (item->origText == "Small") {
-            PeiselState::Get()->brushSize = BRUSH_SMALL;
-            PeiselState::Get()->tool = PEISEL_BRUSH;
+        if (PeiselState::Get()->appMode == PEISEL_TILES) {
+            if (item->origText == "10 x 10") {
+                PeiselState::Get()->tileSize = TILES_10;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+                PeiselState::Get()->changes = true;
+            }
+            else if (item->origText == "50 x 50") {
+                PeiselState::Get()->tileSize = TILES_50;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+                PeiselState::Get()->changes = true;
+            }
+            else if (item->origText == "100 x 100") {
+                PeiselState::Get()->tileSize = TILES_100;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+                PeiselState::Get()->changes = true;
+            }
+            else if (item->origText == "1000 x 1000") {
+                PeiselState::Get()->tileSize = TILES_1000;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+                PeiselState::Get()->changes = true;
+            }
         }
-        else if (item->origText == "Medium") {
-            PeiselState::Get()->brushSize = BRUSH_MEDIUM;
-            PeiselState::Get()->tool = PEISEL_BRUSH;
-        }
-        else if (item->origText == "Large") {
-            PeiselState::Get()->brushSize = BRUSH_LARGE;
-            PeiselState::Get()->tool = PEISEL_BRUSH;
+        else {
+            if (item->origText == "Small") {
+                PeiselState::Get()->brushSize = BRUSH_SMALL;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+            }
+            else if (item->origText == "Medium") {
+                PeiselState::Get()->brushSize = BRUSH_MEDIUM;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+            }
+            else if (item->origText == "Large") {
+                PeiselState::Get()->brushSize = BRUSH_LARGE;
+                PeiselState::Get()->tool = PEISEL_BRUSH;
+            }
         }
         PeiselState::Get()->currentColorBox->SetColor(pen::PEN_LIGHT_GRAY);
         pen::ui::Submit();
@@ -267,9 +347,18 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
                 pen::ui::Item* sizeList = pen::ui::AddItem(new pen::ui::VerticalList(ID_ANY,
                     pen::Vec3(PeiselState::Get()->navBar->childItems[4]->positions.x, PeiselState::Get()->navBar->childItems[4]->positions.y - pen::Pen::ScreenHeight() / 3.0f, 0.0f),
                     pen::Vec2(pen::Pen::ScreenWidth() / 5.0f, pen::Pen::ScreenHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Size"));
-                sizeList->Push(new pen::ui::Button(ID_ANY, "Small", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                sizeList->Push(new pen::ui::Button(ID_ANY, "Medium", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                sizeList->Push(new pen::ui::Button(ID_ANY, "Large", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                if (PeiselState::Get()->appMode == PEISEL_TILES) {
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "10 x 10", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "50 x 50", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "100 x 100", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "1000 x 1000", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 11, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                }
+                else {
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "Small", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "Medium", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "Large", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                }
+                
                 optionList = { "Size", sizeList };
                 pen::ui::Submit();
             }
@@ -283,6 +372,7 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
                     pen::Vec2(pen::Pen::ScreenWidth() / 5.0f, pen::Pen::ScreenHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Mode"));
                 modeList->Push(new pen::ui::Button(ID_ANY, "Drawing", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode, true));
                 modeList->Push(new pen::ui::Button(ID_ANY, "Sprite Sheet", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 12, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode, true));
+                modeList->Push(new pen::ui::Button(ID_ANY, "Tile Map", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode, true));
                 optionList = { "Mode", modeList };
                 pen::ui::Submit();
             }

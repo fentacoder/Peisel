@@ -48,6 +48,9 @@ std::string SpritePathSplit(const std::string& line, const char& character, cons
 					keepGoing = true;
 				}
 			}
+			else {
+				if (counter > 0) return line.substr(previousSectionIdx + 1);
+			}
 		}
 		return "";
 	}

@@ -48,9 +48,17 @@ public:
 public:
     void CheckSave() {
         if(PeiselState::Get()->changes) {
-            if (PeiselState::Get()->saveBox->color.x != pen::PEN_RED.x) {
-                PeiselState::Get()->saveBox->SetColor(pen::PEN_RED);
-                pen::ui::Submit();
+            if (PeiselState::Get()->tileAlt) {
+                if (PeiselState::Get()->saveBox->color.z != pen::PEN_BLUE.z) {
+                    PeiselState::Get()->saveBox->SetColor(pen::PEN_BLUE);
+                    pen::ui::Submit();
+                }
+            }
+            else {
+                if (PeiselState::Get()->saveBox->color.x != pen::PEN_RED.x) {
+                    PeiselState::Get()->saveBox->SetColor(pen::PEN_RED);
+                    pen::ui::Submit();
+                }
             }
         }
     }
@@ -114,7 +122,8 @@ public:
     void OnInput() override {
         switch (PeiselState::Get()->appMode) {
         case PEISEL_TILES:
-            if (pen::Pen::MouseState(pen::in::KEYS::TAB) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::TAB) == pen::in::KEYS::HELD) {
+            if (pen::Pen::KeyState(pen::in::KEYS::Q) == pen::in::KEYS::PRESSED && PeiselState::Get()->action == false) {
+                /*Toggle forward to next tile sprite*/
                 if (PeiselState::Get()->spriteSelect && PeiselState::Get()->spritesLoaded) {
                     if (PeiselState::Get()->selectedTileSlot == PeiselState::Get()->selectableTileSprites.size() - 1) {
                         PeiselState::Get()->selectedTileSlot = 0;
@@ -123,9 +132,37 @@ public:
                         PeiselState::Get()->selectedTileSlot++;
                     }
                     PeiselState::Get()->selectedTileSpriteName = PeiselState::Get()->selectableTileSprites[PeiselState::Get()->selectedTileSlot];
-                    PeiselState::Get()->selectedTileSprite->UpdateText(PeiselState::Get()->selectedTileSpriteName);
+                    PeiselState::Get()->selectedTileSprite->UpdateText(ParseTileSpritePath(PeiselState::Get()->selectedTileSpriteName, 30));
+                    PeiselState::Get()->action = true;
                     pen::ui::Submit();
                 }
+            }else if (pen::Pen::KeyState(pen::in::KEYS::TAB) == pen::in::KEYS::PRESSED && PeiselState::Get()->action == false) {
+                /*Toggle backwards to previous tile sprite*/
+                if (PeiselState::Get()->spriteSelect && PeiselState::Get()->spritesLoaded) {
+                    if (PeiselState::Get()->selectedTileSlot == 0) {
+                        PeiselState::Get()->selectedTileSlot = PeiselState::Get()->selectableTileSprites.size() - 1;
+                    }
+                    else {
+                        PeiselState::Get()->selectedTileSlot--;
+                    }
+                    PeiselState::Get()->selectedTileSpriteName = PeiselState::Get()->selectableTileSprites[PeiselState::Get()->selectedTileSlot];
+                    PeiselState::Get()->selectedTileSprite->UpdateText(ParseTileSpritePath(PeiselState::Get()->selectedTileSpriteName, 30));
+                    PeiselState::Get()->action = true;
+                    pen::ui::Submit();
+                }
+            }
+            else if (pen::Pen::KeyState(pen::in::KEYS::Q) == pen::in::KEYS::RELEASED && pen::Pen::KeyState(pen::in::KEYS::TAB) == pen::in::KEYS::RELEASED) {
+                PeiselState::Get()->action = false;
+            }
+
+            /*Toggle tile alt*/
+            if (pen::Pen::KeyState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::PRESSED && PeiselState::Get()->action == false) {
+                PeiselState::Get()->action = true;
+                PeiselState::Get()->changes = true;
+                PeiselState::Get()->tileAlt = !PeiselState::Get()->tileAlt;
+            }
+            else if (pen::Pen::KeyState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::RELEASED) {
+                PeiselState::Get()->action = false;
             }
             break;
         default:

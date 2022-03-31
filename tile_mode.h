@@ -26,7 +26,6 @@ void LoadTileSprites(pen::ui::Item* item, std::string fileName, bool confirmed) 
 	/*Load the tile sprites with the given paths*/
 	if (confirmed) {
 		PeiselState* peiselState = PeiselState::Get();
-		std::vector<std::string> pathList;
 		std::string path = "";
 		std::string prevPath = "";
 		bool keepGoing = true;
@@ -65,6 +64,42 @@ void LoadTileSprites(pen::ui::Item* item, std::string fileName, bool confirmed) 
 	}
 }
 
+std::string ParseTileSpritePath(std::string fileName, int length) {
+	/*Parses the file name for displaying*/
+	std::vector<std::string> pathList;
+	std::string path = "";
+	std::string prevPath = "";
+	bool keepGoing = true;
+	int counter = 0;
+
+	if (fileName.find("C://") != std::string::npos) fileName = fileName.substr(4);
+
+	while (keepGoing) {
+		path = SpritePathSplit(fileName, '/', counter);
+
+		if (path == prevPath) {
+			keepGoing = false;
+			break;
+		}
+
+		if (path == "") {
+			keepGoing = false;
+			break;
+		}
+
+		counter++;
+
+		/*Load in each path*/
+		prevPath = path;
+
+		pathList.push_back(path);
+	}
+
+	std::string pathName = pathList[pathList.size() - 1];
+	if (pathName.length() > length) pathName = pathName.substr(0, length - 4) + "...";
+	return pathName;
+}
+
 void PaintTiles() {
 	/*Handles the click events in tile mode*/
 	PeiselState* peiselState = PeiselState::Get();
@@ -86,30 +121,45 @@ void PaintTiles() {
 
 			if (peiselState->tiles != nullptr) {
 				/*Reallocate the tiles buffer if necessary*/
-				if (peiselState->tileSize == TILES_10 && (int)peiselState->tiles[0] != 100) {
+				bool update = false;
+				if (peiselState->tileSize == TILES_10 && (int)peiselState->tiles[0] != 10) {
 					delete[] peiselState->tiles;
 					peiselState->tiles = new char[101];
-					std::memset(peiselState->tiles, 0x00000000, 101);
+					std::memset(peiselState->tiles, 0x00000001, 101);
+					peiselState->tiles[0] = (char)10;
+					update = true;
 				}
-				else if (peiselState->tileSize == TILES_50 && (int)peiselState->tiles[0] != 2500) {
+				else if (peiselState->tileSize == TILES_50 && (int)peiselState->tiles[0] != 50) {
 					delete[] peiselState->tiles;
 					peiselState->tiles = new char[2501];
-					std::memset(peiselState->tiles, 0x00000000, 2501);
+					std::memset(peiselState->tiles, 0x00000001, 2501);
+					peiselState->tiles[0] = (char)50;
+					update = true;
 				}
-				else if (peiselState->tileSize == TILES_100 && (int)peiselState->tiles[0] != 10000) {
+				else if (peiselState->tileSize == TILES_100 && (int)peiselState->tiles[0] != 100) {
 					delete[] peiselState->tiles;
 					peiselState->tiles = new char[10001];
-					std::memset(peiselState->tiles, 0x00000000, 10001);
+					std::memset(peiselState->tiles, 0x00000001, 10001);
+					peiselState->tiles[0] = (char)100;
+					update = true;
 				}
-				else if (peiselState->tileSize == TILES_1000 && (int)peiselState->tiles[0] != 1000000) {
-					delete[] peiselState->tiles;
-					peiselState->tiles = new char[1000001];
-					std::memset(peiselState->tiles, 0x00000000, 1000001);
+
+				if (update) {
+					for (int i = 0; i < peiselState->tileSprites.size(); i++) {
+						pen::DeleteItem(peiselState->tileSprites[i].item);
+					}
+					peiselState->tileSprites.clear();
+					for (int j = 0; j < peiselState->collisionBoxes.size(); j++) {
+						pen::DeleteItem(peiselState->collisionBoxes[j].item);
+					}
+					peiselState->collisionBoxes.clear();
+					peiselState->updateCanvas = true;
 				}
 			}
 			else {
 				peiselState->tiles = new char[101];
-				std::memset(peiselState->tiles, 0x00000000, 101);
+				std::memset(peiselState->tiles, 0x00000001, 101);
+				peiselState->tiles[0] = (char)100;
 			}
 
 			/*Get the tile location*/
@@ -118,49 +168,49 @@ void PaintTiles() {
 			int tileLocation = tileY * peiselState->tileSize + tileX;
 			int replaceIdx = -1;
 
-			if (((pen::Pen::MouseState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::HELD)
-				|| (pen::Pen::MouseState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::HELD))
-				&& (pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::HELD)) {
-				/*Remove the selected sprite at that tile*/
+			if (pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::HELD) {
+				/*Place or remove the selected sprite at that tile*/
 				peiselState->penActive = true;
 				peiselState->action = true;
 				peiselState->changes = true;
-				for (int i = 0; i < peiselState->tileSprites.size(); i++) {
-					if (peiselState->tileSprites[i].tile == tileLocation) {
-						replaceIdx = i;
-						break;
+				if (peiselState->tileAlt) {
+					/*Remove the selected sprite*/
+					std::vector<PeiselTileSprite> tempList;
+					for (int i = 0; i < peiselState->tileSprites.size(); i++) {
+						if (peiselState->tileSprites[i].tile == tileLocation) {
+							replaceIdx = i;
+						}
+						else {
+							tempList.push_back(peiselState->tileSprites[i]);
+						}
 					}
-				}
-				if (replaceIdx != -1) {
-					pen::DeleteItem(peiselState->tileSprites[replaceIdx].item);
-					peiselState->tileSprites[replaceIdx] = { nullptr, tileLocation };
-				}
-				peiselState->updateCanvas = true;
-			}
-			else if (pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::HELD) {
-				/*Place the selected sprite at that tile*/
-				peiselState->penActive = true;
-				peiselState->action = true;
-				peiselState->changes = true;
-				pen::Item* sprite = pen::CreateSprite(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-					(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
-					pen::PixelBufferWidth() / peiselState->tileSize,
-					(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
-					peiselState->selectedTileSpriteName);
-				pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
-
-				for (int i = 0; i < peiselState->tileSprites.size(); i++) {
-					if (peiselState->tileSprites[i].tile == tileLocation) {
-						replaceIdx = i;
-						break;
+					if (replaceIdx != -1) {
+						pen::DeleteItem(peiselState->tileSprites[replaceIdx].item);
+						peiselState->tileSprites = tempList;
 					}
-				}
-
-				if (replaceIdx != -1) {
-					peiselState->tileSprites[replaceIdx] = { sprite, tileLocation };
 				}
 				else {
-					peiselState->tileSprites.push_back({ sprite, tileLocation });
+					/*Place the selected sprite*/
+					pen::Item* sprite = pen::CreateSprite(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
+						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+						pen::PixelBufferWidth() / peiselState->tileSize,
+						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+						peiselState->selectedTileSpriteName);
+					pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
+
+					for (int i = 0; i < peiselState->tileSprites.size(); i++) {
+						if (peiselState->tileSprites[i].tile == tileLocation) {
+							replaceIdx = i;
+							break;
+						}
+					}
+
+					if (replaceIdx != -1) {
+						peiselState->tileSprites[replaceIdx] = { sprite, tileLocation };
+					}
+					else {
+						peiselState->tileSprites.push_back({ sprite, tileLocation });
+					}
 				}
 				peiselState->updateCanvas = true;
 			}
@@ -177,12 +227,12 @@ void PaintTiles() {
 				}
 
 				if (replaceIdx != -1) {
-					if (peiselState->tiles[tileLocation] == 0x00000000) {
-						peiselState->tiles[tileLocation] = 0x00000001;
+					if (peiselState->tiles[tileLocation + 1] == (char) 1) {
+						peiselState->tiles[tileLocation + 1] = (char) 2;
 						peiselState->collisionBoxes[replaceIdx].item->color = pen::PEN_RED;
 					}
 					else {
-						peiselState->tiles[tileLocation] = 0x00000000;
+						peiselState->tiles[tileLocation + 1] = (char) 1;
 						peiselState->collisionBoxes[replaceIdx].item->color = pen::PEN_TRANSPARENT;
 					}
 				}
@@ -195,12 +245,12 @@ void PaintTiles() {
 						false);
 					sprite->color = pen::PEN_RED;
 					peiselState->collisionBoxes.push_back({ sprite, tileLocation });
-					peiselState->tiles[tileLocation] = 0x00000000;
+					peiselState->tiles[tileLocation + 1] = (char) 2;
 				}
 				peiselState->updateCanvas = true;
 			}
 			else if ((pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::RELEASED) || (pen::Pen::MouseState(pen::in::KEYS::MOUSE_RIGHT) == pen::in::KEYS::RELEASED)
-				|| (pen::Pen::MouseState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::RELEASED) || (pen::Pen::MouseState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::RELEASED)) {
+				|| (pen::Pen::KeyState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::RELEASED) || (pen::Pen::KeyState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::RELEASED)) {
 				peiselState->penActive = false;
 				peiselState->action = false;
 			}
@@ -212,7 +262,7 @@ void UpdateTileCanvas() {
 	/*Redraws all of the buffer data*/
 	PeiselState* peiselState = PeiselState::Get();
 	if (peiselState->updateCanvas) {
-		std::memcpy(pen::PixelBuffer(), peiselState->tileBackground, pen::PixelBufferWidth() * pen::PixelBufferHeight() * 4);
+		pen::Flush();
 		for (int i = 0; i < peiselState->tileSprites.size(); i++) {
 			peiselState->tileSprites[i].item->Draw();
 		}
@@ -278,43 +328,65 @@ void TileMode() {
 				int tileLocation = tileY * peiselState->tileSize + tileX;
 				int replaceIdx = -1;
 
-				if (((pen::Pen::MouseState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::HELD)
-					|| (pen::Pen::MouseState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::HELD))
+				if (((pen::Pen::KeyState(pen::in::KEYS::LEFT_SHIFT) == pen::in::KEYS::HELD)
+					|| (pen::Pen::KeyState(pen::in::KEYS::RIGHT_SHIFT) == pen::in::KEYS::HELD))
 					&& (pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::HELD)) {
 					/*Remove the selected sprite at that tile*/
+					std::vector<PeiselTileSprite> tempList;
 					for (int i = 0; i < peiselState->tileSprites.size(); i++) {
 						if (peiselState->tileSprites[i].tile == tileLocation) {
 							replaceIdx = i;
-							break;
+						}
+						else {
+							tempList.push_back(peiselState->tileSprites[i]);
 						}
 					}
 					if (replaceIdx != -1) {
 						pen::DeleteItem(peiselState->tileSprites[replaceIdx].item);
-						peiselState->tileSprites[replaceIdx] = { nullptr, tileLocation };
+						peiselState->tileSprites = tempList;
 					}
 					peiselState->updateCanvas = true;
 				}
 				else if (pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::HELD) {
-					/*Place the selected sprite at that tile*/
-					pen::Item* sprite = pen::CreateSprite(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
-						pen::PixelBufferWidth() / peiselState->tileSize,
-						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
-						peiselState->selectedTileSpriteName);
-					pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
-
-					for (int i = 0; i < peiselState->tileSprites.size(); i++) {
-						if (peiselState->tileSprites[i].tile == tileLocation) {
-							replaceIdx = i;
-							break;
+					/*Place or remove the selected sprite at that tile*/
+					if (peiselState->tileAlt) {
+						/*Remove the selected sprite*/
+						std::vector<PeiselTileSprite> tempList;
+						for (int i = 0; i < peiselState->tileSprites.size(); i++) {
+							if (peiselState->tileSprites[i].tile == tileLocation) {
+								replaceIdx = i;
+							}
+							else {
+								tempList.push_back(peiselState->tileSprites[i]);
+							}
+						}
+						if (replaceIdx != -1) {
+							pen::DeleteItem(peiselState->tileSprites[replaceIdx].item);
+							peiselState->tileSprites = tempList;
 						}
 					}
-
-					if (replaceIdx != -1) {
-						peiselState->tileSprites[replaceIdx] = { sprite, tileLocation };
-					}
 					else {
-						peiselState->tileSprites.push_back({ sprite, tileLocation });
+						/*Place the selected sprite*/
+						pen::Item* sprite = pen::CreateSprite(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
+							(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+							pen::PixelBufferWidth() / peiselState->tileSize,
+							(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+							peiselState->selectedTileSpriteName);
+						pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
+
+						for (int i = 0; i < peiselState->tileSprites.size(); i++) {
+							if (peiselState->tileSprites[i].tile == tileLocation) {
+								replaceIdx = i;
+								break;
+							}
+						}
+
+						if (replaceIdx != -1) {
+							peiselState->tileSprites[replaceIdx] = { sprite, tileLocation };
+						}
+						else {
+							peiselState->tileSprites.push_back({ sprite, tileLocation });
+						}
 					}
 					peiselState->updateCanvas = true;
 				}
@@ -328,12 +400,12 @@ void TileMode() {
 					}
 
 					if (replaceIdx != -1) {
-						if (peiselState->tiles[tileLocation] == 0x00000000) {
-							peiselState->tiles[tileLocation] = 0x00000001;
+						if (peiselState->tiles[tileLocation + 1] == (char) 1) {
+							peiselState->tiles[tileLocation + 1] = (char) 2;
 							peiselState->collisionBoxes[replaceIdx].item->color = pen::PEN_RED;
 						}
 						else {
-							peiselState->tiles[tileLocation] = 0x00000000;
+							peiselState->tiles[tileLocation + 1] = (char) 1;
 							peiselState->collisionBoxes[replaceIdx].item->color = pen::PEN_TRANSPARENT;
 						}
 					}
@@ -346,7 +418,7 @@ void TileMode() {
 							false);
 						sprite->color = pen::PEN_RED;
 						peiselState->collisionBoxes.push_back({ sprite, tileLocation });
-						peiselState->tiles[tileLocation] = 0x00000000;
+						peiselState->tiles[tileLocation + 1] = (char) 2;
 					}
 					peiselState->updateCanvas = true;
 				}

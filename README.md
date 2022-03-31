@@ -43,6 +43,9 @@ Sprite sheet mode is a mode for combining multiple images into a single png file
 # 1.3 - Tile Mode
 
 Tile mode is used for creating tile maps.  The tiles consist of an image with the sprites and a binary file for the collision information.
-To add sprites to the tile map, select one by pressing Tab to toggle through the loaded list and Left Clicking on the tile.
-To remove a sprite hold Shift and Left Click on the tile.
+To add sprites to the tile map, select one by pressing Q to toggle through the loaded list and Left Clicking on the tile.
+Tab can be pressed to toggle backwards through the loaded list.
+To remove a sprite press Left Shift to switch to tile alt mode and Left Click on the tile.
 To add a collision block for a solid tile Right Click on that tile.
+
+When saving your tile map, the image created is a .png file while the tile collision information is a .pentm file in the same directory.

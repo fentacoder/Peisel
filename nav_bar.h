@@ -90,19 +90,6 @@ bool SelectMode(pen::ui::Item* item, int button, int action) {
             peiselState->navBar->childItems[3]->AllowActive(false);
             peiselState->navBar->childItems[4]->AllowActive(true);
 
-            if (peiselState->tileBackground == nullptr) {
-                peiselState->tileBackground = new unsigned char[pen::PixelBufferWidth() * pen::PixelBufferHeight() * 4];
-
-                for (int y = 0; y < pen::PixelBufferHeight(); y++) {
-                    for (int x = 0; x < pen::PixelBufferWidth(); x++) {
-                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4)] = (unsigned char)(255 * pen::PEN_WHITE.x);
-                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4) + 1] = (unsigned char)(255 * pen::PEN_WHITE.y);
-                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4) + 2] = (unsigned char)(255 * pen::PEN_WHITE.z);
-                        peiselState->tileBackground[y * (pen::PixelBufferWidth() * 4) + (x * 4) + 3] = (unsigned char)(255 * pen::PEN_WHITE.w);
-                    }
-                }
-            }
-
             if (peiselState->spriteFileModal != nullptr) {
                 pen::ui::RemoveItem(peiselState->spriteFileModal);
                 peiselState->spriteFileModal = nullptr;
@@ -250,11 +237,6 @@ bool SelectBrushSize(pen::ui::Item* item, int button, int action) {
                 PeiselState::Get()->tool = PEISEL_BRUSH;
                 PeiselState::Get()->changes = true;
             }
-            else if (item->origText == "1000 x 1000") {
-                PeiselState::Get()->tileSize = TILES_1000;
-                PeiselState::Get()->tool = PEISEL_BRUSH;
-                PeiselState::Get()->changes = true;
-            }
         }
         else {
             if (item->origText == "Small") {
@@ -351,7 +333,6 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
                     sizeList->Push(new pen::ui::Button(ID_ANY, "10 x 10", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
                     sizeList->Push(new pen::ui::Button(ID_ANY, "50 x 50", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
                     sizeList->Push(new pen::ui::Button(ID_ANY, "100 x 100", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "1000 x 1000", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 11, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
                 }
                 else {
                     sizeList->Push(new pen::ui::Button(ID_ANY, "Small", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));

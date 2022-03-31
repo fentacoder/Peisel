@@ -91,9 +91,8 @@ public:
     std::string selectedTileSpriteName = "";
     pen::ui::Item* selectedTileSprite = nullptr;
     int selectedTileSlot = 0;
-    unsigned char* tileBackground = nullptr;
-    bool updateCurrentTile = false;
     pen::Item* currentTile = nullptr;
+    bool tileAlt = false;
     /*----Tile Mode----*/
 
 public:

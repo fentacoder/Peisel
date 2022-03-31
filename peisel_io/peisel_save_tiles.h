@@ -41,7 +41,7 @@ void SaveTiles(pen::ui::Item* item, std::string fileName, bool confirmed) {
 			/*The first char of the buffer is the number of tiles*/
 			std::ofstream tileFile(fileName, std::ios::out | std::ios::binary);
 			if (tileFile.is_open()) {
-				int tileCount = ((int)peiselState->tiles[0]) + 1;
+				int tileCount = ((int)peiselState->tiles[0] * (int)peiselState->tiles[0]) + 1;
 				for (int i = 0; i < tileCount; i++) {
 					tileFile.write((char*)&peiselState->tiles[i], sizeof(char));
 				}
@@ -63,12 +63,14 @@ void LoadTiles(std::string fileName) {
 
 	std::ifstream tileFile(fileName, std::ios::out | std::ios::binary);
 	if (tileFile.is_open()) {
-		char tileCount = 1000001;
+		char tileCountValue = 1000001;
+		int tileCount = 1;
 		for (int i = 0; i < tileCount; i++) {
 			if (i == 0) {
-				tileFile.read((char*)&tileCount, sizeof(char));
-				peiselState->tiles = new char[(int)tileCount];
-				peiselState->tiles[0] = tileCount;
+				tileFile.read((char*)&tileCountValue, sizeof(char));
+				tileCount = (int)tileCountValue * (int)tileCountValue;
+				peiselState->tiles = new char[tileCount];
+				peiselState->tiles[0] = tileCountValue;
 			}
 			else {
 				tileFile.read((char*)&peiselState->tiles[i], sizeof(char));

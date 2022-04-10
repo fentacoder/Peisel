@@ -10,7 +10,7 @@ In order to run this in Visual Studio, set these locations in Preferences -> C/C
 
 Next in Preferences -> Linker -> General set this:
 
-	$(SolutionDir)dependencies\libs;$(SolutionDir)pen_engine\dependencies\glfw\lib-vc2019;
+	$(SolutionDir)dependencies\libs;$(SolutionDir)pen_engine\dependencies\glfw\lib-win;
 
 Lastly in Preferences -> Linker -> Input add this:
 

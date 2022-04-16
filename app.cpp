@@ -23,7 +23,7 @@ under the License.
 int main()
 {
     App app = App();
-    app.CreateApplication("Peisel", PeiselState::Get()->SCR_WIDTH, PeiselState::Get()->SCR_HEIGHT, "C:/Users/jamar/Documents/c++_projects/peisel/peisel");
+    app.CreateApplication("Peisel", PeiselState::Get()->SCR_WIDTH, PeiselState::Get()->SCR_HEIGHT, "");
     app.OnCreate();
     app.OnRender();
     app.End();

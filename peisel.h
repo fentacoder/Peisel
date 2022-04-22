@@ -171,17 +171,15 @@ public:
     }
 
     void OnRender() override {
-        pen::Renderer renderer;
-
         while (pen::Pen::Running())
         {
             OnInput();
             renderer.Clear();
-            if(pen::Render::Get()->firstTime) renderer.Background(pen::PEN_WHITE);
+            if(pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_WHITE);
 
             HandleUpdates();
 
-            pen::Pen::ManageRender(&renderer);
+            pen::Pen::ManageRender();
         }
     }
 };

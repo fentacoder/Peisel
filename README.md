@@ -2,7 +2,7 @@
 
 Peisel is a program that let's you create png files and sprite sheets.
 
-Peisel uses Pen Engine for rendering which you can grab from https://github.com/fentacoder/pen_engine.
+Peisel uses Pen Engine for rendering which you can grab from https://github.com/jamarphi/pen_engine.
 
 In order to run this in Visual Studio, set these locations in Preferences -> C/C++ -> General -> Additional Include Directories:
 

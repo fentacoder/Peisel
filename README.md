@@ -6,7 +6,7 @@ Peisel uses Pen Engine for rendering which you can grab from https://github.com/
 
 In order to run this in Visual Studio, set these locations in Preferences -> C/C++ -> General -> Additional Include Directories:
 
-	$(SolutionDir)dependencies\include;$(SolutionDir)pen_engine\dependencies\glfw\include;$(SolutionDir)pen_engine\dependencies\glad;
+	$(SolutionDir)dependencies\include;$(SolutionDir)pen_engine\dependencies\glfw\include;$(SolutionDir)pen_engine\dependencies\glad;$(SolutionDir)dependencies\include;
 
 Next in Preferences -> Linker -> General set this:
 

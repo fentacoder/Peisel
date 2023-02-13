@@ -255,9 +255,7 @@ PeiselShape* DrawHandleClick(PeiselState* peiselState, int& x, int& y) {
     /*Handles the click in the canvas*/
     pen::Pen::GetMousePos(peiselState->mouseXPtr, peiselState->mouseYPtr);
 
-    if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::Pen::ScreenWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) {
-        x = PeiselState::ScreenToPexelX(*peiselState->mouseXPtr);
-        y = PeiselState::ScreenToPexelY(*peiselState->mouseYPtr);
+    if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::PixelBufferWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) {
 
         if (PeiselState::Get()->appState != DRAW_SHAPE) {
             if ((pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::PRESSED || pen::Pen::MouseState(pen::in::KEYS::MOUSE_LEFT) == pen::in::KEYS::HELD)
@@ -482,8 +480,8 @@ void DrawMode() {
     if (PeiselState::Get()->penActive) {
         PeiselState* peiselState = PeiselState::Get();
         pen::Pen::GetMousePos(peiselState->mouseXPtr, peiselState->mouseYPtr);
-        int x = PeiselState::ScreenToPexelX(*peiselState->mouseXPtr);
-        int y = PeiselState::ScreenToPexelY(*peiselState->mouseYPtr);
+        int x = (int)*peiselState->mouseXPtr;
+        int y = (int)*peiselState->mouseYPtr;
         switch (peiselState->appState) {
         case DRAW_BRUSHING:
             /*Continue brush drawing since user's click is still being held*/

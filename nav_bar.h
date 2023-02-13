@@ -97,8 +97,8 @@ bool SelectMode(pen::ui::Item* item, int button, int action) {
 
             if (peiselState->selectedTileSprite == nullptr) {
                 peiselState->selectedTileSprite = pen::ui::AddItem(new pen::ui::TextBox(ID_ANY, "",
-                    pen::Vec3(pen::Pen::ScreenWidth() / 5.0f * 3.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f),
-                    30, pen::PEN_TRANSPARENT, pen::PEN_BLACK, nullptr, nullptr, true));
+                    pen::Vec3(pen::PixelBufferWidth() / 5.0f * 3.0f, pen::PixelBufferHeight() - 40.0f, 0.0f),
+                    30, pen::PEN_TRANSPARENT, pen::PEN_BLACK, nullptr, nullptr));
             }
         }
         peiselState->currentColorBox->SetColor(pen::PEN_LIGHT_GRAY);
@@ -266,10 +266,10 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
             if (optionList.name != "File") {
                 pen::ui::RemoveItem(optionList.data);
                 pen::ui::Item* fileList = pen::ui::AddItem(new pen::ui::VerticalList(ID_ANY,
-                    pen::Vec3(PeiselState::Get()->navBar->childItems[0]->positions.x, PeiselState::Get()->navBar->childItems[0]->positions.y - pen::Pen::ScreenHeight() / 3.0f, 0.0f),
-                    pen::Vec2(pen::Pen::ScreenWidth() / 5.0f, pen::Pen::ScreenHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "File"));
-                fileList->Push(new pen::ui::Button(ID_ANY, (PeiselState::Get()->outputFile.length() > 0 ? "Save" : "Save As"), pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, fileList, &SaveAs, true));
-                fileList->Push(new pen::ui::Button(ID_ANY, "Exit", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, fileList, &PeiselExit, true));
+                    pen::Vec3(PeiselState::Get()->navBar->childItems[0]->GetPosition()->x, PeiselState::Get()->navBar->childItems[0]->GetPosition()->y - pen::PixelBufferHeight() / 3.0f, 0.0f),
+                    pen::Vec2(pen::PixelBufferWidth() / 5.0f, pen::PixelBufferHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "File"));
+                fileList->Push(new pen::ui::Button(ID_ANY, (PeiselState::Get()->outputFile.length() > 0 ? "Save" : "Save As"), pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, fileList, &SaveAs));
+                fileList->Push(new pen::ui::Button(ID_ANY, "Exit", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, fileList, &PeiselExit));
                 optionList = { "File", fileList };
                 pen::ui::Submit();
             }
@@ -279,29 +279,29 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
             if (optionList.name != "Tools") {
                 pen::ui::RemoveItem(optionList.data);
                 pen::ui::Item* toolsList = pen::ui::AddItem(new pen::ui::VerticalList(ID_ANY,
-                    pen::Vec3(PeiselState::Get()->navBar->childItems[1]->positions.x, PeiselState::Get()->navBar->childItems[1]->positions.y - pen::Pen::ScreenHeight() / 3.0f, 0.0f),
-                    pen::Vec2(pen::Pen::ScreenWidth() / 5.0f, pen::Pen::ScreenHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Tools"));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Fill", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectFillTool, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Light Gray", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 10, pen::PEN_TRANSPARENT, pen::PEN_GRAY, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Gray", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Red", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_RED, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Blue", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLUE, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Green", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GREEN, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Dark Green", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 10, pen::PEN_TRANSPARENT, pen::PEN_DARK_GREEN, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Cyan", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_CYAN, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Violet", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_VIOLET, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Purple", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_PURPLE, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Yellow", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_YELLOW, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Orange", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_ORANGE, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Brown", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BROWN, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Beige", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BEIGE, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Gold", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GOLD, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "White", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_WHITE, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Black", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectColor, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Line", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Triangle", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Rectangle", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape, true));
-                toolsList->Push(new pen::ui::Button(ID_ANY, "Circle", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape, true));
+                    pen::Vec3(PeiselState::Get()->navBar->childItems[1]->GetPosition()->x, PeiselState::Get()->navBar->childItems[1]->GetPosition()->y - pen::PixelBufferHeight() / 3.0f, 0.0f),
+                    pen::Vec2(pen::PixelBufferWidth() / 5.0f, pen::PixelBufferHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Tools"));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Fill", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectFillTool));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Light Gray", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 10, pen::PEN_TRANSPARENT, pen::PEN_GRAY, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Gray", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Red", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_RED, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Blue", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLUE, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Green", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GREEN, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Dark Green", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 10, pen::PEN_TRANSPARENT, pen::PEN_DARK_GREEN, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Cyan", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_CYAN, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Violet", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_VIOLET, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Purple", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_PURPLE, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Yellow", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_YELLOW, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Orange", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_ORANGE, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Brown", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BROWN, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Beige", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BEIGE, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Gold", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GOLD, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "White", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_WHITE, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Black", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectColor));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Line", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Triangle", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Rectangle", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape));
+                toolsList->Push(new pen::ui::Button(ID_ANY, "Circle", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_BLACK, toolsList, &SelectShape));
                 optionList = { "Tools", toolsList };
                 pen::ui::Submit();
             }
@@ -327,17 +327,17 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
             if (optionList.name != "Size") {
                 pen::ui::RemoveItem(optionList.data);
                 pen::ui::Item* sizeList = pen::ui::AddItem(new pen::ui::VerticalList(ID_ANY,
-                    pen::Vec3(PeiselState::Get()->navBar->childItems[4]->positions.x, PeiselState::Get()->navBar->childItems[4]->positions.y - pen::Pen::ScreenHeight() / 3.0f, 0.0f),
-                    pen::Vec2(pen::Pen::ScreenWidth() / 5.0f, pen::Pen::ScreenHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Size"));
+                    pen::Vec3(PeiselState::Get()->navBar->childItems[4]->GetPosition()->x, PeiselState::Get()->navBar->childItems[4]->GetPosition()->y - pen::PixelBufferHeight() / 3.0f, 0.0f),
+                    pen::Vec2(pen::PixelBufferWidth() / 5.0f, pen::PixelBufferHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Size"));
                 if (PeiselState::Get()->appMode == PEISEL_TILES) {
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "10 x 10", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "50 x 50", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "100 x 100", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "10 x 10", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "50 x 50", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "100 x 100", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize));
                 }
                 else {
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "Small", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "Medium", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
-                    sizeList->Push(new pen::ui::Button(ID_ANY, "Large", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize, true));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "Small", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "Medium", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize));
+                    sizeList->Push(new pen::ui::Button(ID_ANY, "Large", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, sizeList, &SelectBrushSize));
                 }
                 
                 optionList = { "Size", sizeList };
@@ -349,11 +349,11 @@ bool NavClick(pen::ui::Item* item, int button, int action) {
             if (optionList.name != "Mode") {
                 pen::ui::RemoveItem(optionList.data);
                 pen::ui::Item* modeList = pen::ui::AddItem(new pen::ui::VerticalList(ID_ANY,
-                    pen::Vec3(PeiselState::Get()->navBar->childItems[PeiselState::Get()->navBar->childItems.size() - 1]->positions.x, PeiselState::Get()->navBar->childItems[PeiselState::Get()->navBar->childItems.size() - 1]->positions.y - pen::Pen::ScreenHeight() / 3.0f, 0.0f),
-                    pen::Vec2(pen::Pen::ScreenWidth() / 5.0f, pen::Pen::ScreenHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Mode"));
-                modeList->Push(new pen::ui::Button(ID_ANY, "Drawing", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode, true));
-                modeList->Push(new pen::ui::Button(ID_ANY, "Sprite Sheet", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 12, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode, true));
-                modeList->Push(new pen::ui::Button(ID_ANY, "Tile Map", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode, true));
+                    pen::Vec3(PeiselState::Get()->navBar->childItems[PeiselState::Get()->navBar->childItems.size() - 1]->GetPosition()->x, PeiselState::Get()->navBar->childItems[PeiselState::Get()->navBar->childItems.size() - 1]->GetPosition()->y - pen::PixelBufferHeight() / 3.0f, 0.0f),
+                    pen::Vec2(pen::PixelBufferWidth() / 5.0f, pen::PixelBufferHeight() / 3.0f), pen::PEN_LIGHT_GRAY, pen::PEN_GRAY, nullptr, nullptr, "Mode"));
+                modeList->Push(new pen::ui::Button(ID_ANY, "Drawing", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode));
+                modeList->Push(new pen::ui::Button(ID_ANY, "Sprite Sheet", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 12, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode));
+                modeList->Push(new pen::ui::Button(ID_ANY, "Tile Map", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 9, pen::PEN_TRANSPARENT, pen::PEN_GRAY, modeList, &SelectMode));
                 optionList = { "Mode", modeList };
                 pen::ui::Submit();
             }

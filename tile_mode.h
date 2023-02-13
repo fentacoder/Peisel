@@ -107,9 +107,9 @@ void PaintTiles() {
 		int x = 0;
 		int y = 0;
 		pen::Pen::GetMousePos(peiselState->mouseXPtr, peiselState->mouseYPtr);
-		if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::Pen::ScreenWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) {
-			x = PeiselState::ScreenToPexelX(*peiselState->mouseXPtr);
-			y = PeiselState::ScreenToPexelY(*peiselState->mouseYPtr);
+		if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::PixelBufferWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) {
+			x = (int)*peiselState->mouseXPtr;
+			y = (int)*peiselState->mouseYPtr;
 		}
 
 		if (x > 0) {
@@ -164,7 +164,7 @@ void PaintTiles() {
 
 			/*Get the tile location*/
 			int tileX = peiselState->tileSize * x / pen::PixelBufferWidth();
-			int tileY = peiselState->tileSize * y / (pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN);
+			int tileY = peiselState->tileSize * y / (pen::PixelBufferHeight() - CANVAS_TOP_MARGIN);
 			int tileLocation = tileY * peiselState->tileSize + tileX;
 			int replaceIdx = -1;
 
@@ -192,11 +192,11 @@ void PaintTiles() {
 				else {
 					/*Place the selected sprite*/
 					pen::Item* sprite = pen::CreateSprite(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+						(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
 						pen::PixelBufferWidth() / peiselState->tileSize,
-						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+						(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
 						peiselState->selectedTileSpriteName);
-					pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
+					pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
 
 					for (int i = 0; i < peiselState->tileSprites.size(); i++) {
 						if (peiselState->tileSprites[i].tile == tileLocation) {
@@ -238,9 +238,9 @@ void PaintTiles() {
 				}
 				else {
 					pen::Item* sprite = pen::DrawRect(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+						(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
 						pen::PixelBufferWidth() / peiselState->tileSize,
-						(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+						(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
 						pen::PEN_WHITE,
 						false);
 					sprite->color = pen::PEN_RED;
@@ -275,30 +275,30 @@ void UpdateTileCanvas() {
 	/*Draw the current tile*/
 	int x = 0;
 	int y = 0;
-	if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::Pen::ScreenWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) {
-		x = PeiselState::ScreenToPexelX(*peiselState->mouseXPtr);
-		y = PeiselState::ScreenToPexelY(*peiselState->mouseYPtr);
+	if (*peiselState->mouseXPtr >= 0.0f && *peiselState->mouseXPtr <= pen::PixelBufferWidth() && *peiselState->mouseYPtr >= 0.0f && *peiselState->mouseYPtr <= pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) {
+		x = (int)*peiselState->mouseXPtr;
+		y = (int)*peiselState->mouseYPtr;
 	}
 
 	if (x > 0) {
 		int tileX = peiselState->tileSize * x / pen::PixelBufferWidth();
-		int tileY = peiselState->tileSize * y / (pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN);
+		int tileY = peiselState->tileSize * y / (pen::PixelBufferHeight() - CANVAS_TOP_MARGIN);
 		int tileLocation = tileY * peiselState->tileSize + tileX;
 		int width = pen::PixelBufferWidth() / peiselState->tileSize;
-		int height = (int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize);
+		int height = (int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize);
 
 		if (peiselState->currentTile != nullptr) {
 			if (peiselState->currentTile->width != width) pen::Scale(peiselState->currentTile, (1.0f / (float)peiselState->tileSize) / peiselState->currentTile->width, 1.0f);
 			if (peiselState->currentTile->height != height) pen::Scale(peiselState->currentTile, 1.0f, (1.0f / (float)peiselState->tileSize) / peiselState->currentTile->height);
 
 			peiselState->currentTile->x = pen::PixelBufferWidth() * tileX / peiselState->tileSize;
-			peiselState->currentTile->y = (int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize);
+			peiselState->currentTile->y = (int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize);
 		}
 		else {
 			peiselState->currentTile = pen::DrawRect(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-				(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+				(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
 				pen::PixelBufferWidth() / peiselState->tileSize,
-				(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+				(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
 				pen::PEN_GREEN,
 				false);
 		}
@@ -318,13 +318,13 @@ void TileMode() {
 		if (PeiselState::Get()->penActive) {
 			PeiselState* peiselState = PeiselState::Get();
 			pen::Pen::GetMousePos(peiselState->mouseXPtr, peiselState->mouseYPtr);
-			int x = PeiselState::ScreenToPexelX(*peiselState->mouseXPtr);
-			int y = PeiselState::ScreenToPexelY(*peiselState->mouseYPtr);
+			int x = (int)*peiselState->mouseXPtr;
+			int y = (int)*peiselState->mouseYPtr;
 
 			if (x > 0) {
 				/*Get the tile location*/
 				int tileX = peiselState->tileSize * x / pen::PixelBufferWidth();
-				int tileY = peiselState->tileSize * y / (pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN);
+				int tileY = peiselState->tileSize * y / (pen::PixelBufferHeight() - CANVAS_TOP_MARGIN);
 				int tileLocation = tileY * peiselState->tileSize + tileX;
 				int replaceIdx = -1;
 
@@ -368,11 +368,11 @@ void TileMode() {
 					else {
 						/*Place the selected sprite*/
 						pen::Item* sprite = pen::CreateSprite(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-							(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+							(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
 							pen::PixelBufferWidth() / peiselState->tileSize,
-							(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+							(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
 							peiselState->selectedTileSpriteName);
-						pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
+						pen::Scale(sprite, (pen::PixelBufferWidth() / peiselState->tileSize) / sprite->width, ((int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize)) / sprite->height);
 
 						for (int i = 0; i < peiselState->tileSprites.size(); i++) {
 							if (peiselState->tileSprites[i].tile == tileLocation) {
@@ -411,9 +411,9 @@ void TileMode() {
 					}
 					else {
 						pen::Item* sprite = pen::DrawRect(pen::PixelBufferWidth() * tileX / peiselState->tileSize,
-							(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
+							(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) * tileY / peiselState->tileSize),
 							pen::PixelBufferWidth() / peiselState->tileSize,
-							(int)((pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
+							(int)((pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / peiselState->tileSize),
 							pen::PEN_WHITE,
 							false);
 						sprite->color = pen::PEN_RED;

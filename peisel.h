@@ -83,9 +83,8 @@ public:
     }
 
     void OnCreate() override {
-        pen::InitializePixels();
         pen::ui::Item* pixelBuffer = pen::ui::LM::pixelLayer->layerItems[0];
-        pixelBuffer->size.y = pixelBuffer->size.y - CANVAS_TOP_MARGIN;
+        pixelBuffer->GetSize()->y = pixelBuffer->GetSize()->y - CANVAS_TOP_MARGIN;
 
         /*Allocates a buffer for free drawing*/
         PeiselState* peiselState = PeiselState::Get();
@@ -94,23 +93,23 @@ public:
 
         optionList = { "", nullptr };
         peiselState->navBar = pen::ui::AddItem(new pen::ui::NavBar(PEISEL_NAVBAR_ID, CANVAS_TOP_MARGIN, pen::PEN_LIGHT_GRAY));
-        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "File", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick, true));
-        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Tools", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 5, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick, true));
-        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Draw", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick, true));
-        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Erase", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 5, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick, true));
-        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Size", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick, true));
-        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Mode", pen::Vec3(0.0f, pen::Pen::ScreenHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick, true));
+        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "File", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick));
+        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Tools", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 5, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick));
+        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Draw", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick));
+        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Erase", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 5, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick));
+        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Size", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick));
+        peiselState->navBar->Push(new pen::ui::Button(ID_ANY, "Mode", pen::Vec3(0.0f, pen::PixelBufferHeight() - 40.0f, 0.0f), 4, pen::PEN_LIGHT_GRAY, pen::PEN_BLACK, peiselState->navBar, &NavClick));
 
         peiselState->currentColorBox = pen::ui::AddItem(new pen::ui::Item(PEISEL_CURRENT_COLOR_BOX_ID, 
-            pen::Vec3(pen::Pen::ScreenWidth() / 10.0f * 9.0f, pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN, 0.0f), pen::Vec2(pen::Pen::ScreenWidth() / 10.0f - 10.0f, CANVAS_TOP_MARGIN),
+            pen::Vec3(pen::PixelBufferWidth() / 10.0f * 9.0f, pen::PixelBufferHeight() - CANVAS_TOP_MARGIN, 0.0f), pen::Vec2(pen::PixelBufferWidth() / 10.0f - 10.0f, CANVAS_TOP_MARGIN),
             pen::ui::Shape::QUAD, pen::PEN_LIGHT_GRAY, nullptr, nullptr, true));
         peiselState->currentColorBox->Push(new pen::ui::Item(ID_ANY, 
-            pen::Vec3(peiselState->currentColorBox->positions.x + 4.0f, peiselState->currentColorBox->positions.y + 4.0f, 0.0f),
-            pen::Vec2(peiselState->currentColorBox->size.x - 8.0f, peiselState->currentColorBox->size.y - 8.0f),
+            pen::Vec3(peiselState->currentColorBox->GetPosition()->x + 4.0f, peiselState->currentColorBox->GetPosition()->y + 4.0f, 0.0f),
+            pen::Vec2(peiselState->currentColorBox->GetSize()->x - 8.0f, peiselState->currentColorBox->GetSize()->y - 8.0f),
             pen::ui::Shape::QUAD, pen::PEN_BLACK, peiselState->currentColorBox, nullptr, true));
 
         peiselState->saveBox = pen::ui::AddItem(new pen::ui::Item(PEISEL_SAVE_BOX_ID,
-            pen::Vec3(pen::Pen::ScreenWidth() / 10.0f * 8.0f, pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN, 0.0f), pen::Vec2(pen::Pen::ScreenWidth() / 20.0f - 10.0f, pen::Pen::ScreenWidth() / 20.0f - 10.0f),
+            pen::Vec3(pen::PixelBufferWidth() / 10.0f * 8.0f, pen::PixelBufferHeight() - CANVAS_TOP_MARGIN, 0.0f), pen::Vec2(pen::PixelBufferWidth() / 20.0f - 10.0f, pen::PixelBufferWidth() / 20.0f - 10.0f),
             pen::ui::Shape::QUAD, pen::PEN_GREEN, nullptr, nullptr, true));
 
         pen::ui::Submit();
@@ -174,7 +173,6 @@ public:
         while (pen::Pen::Running())
         {
             OnInput();
-            renderer.Clear();
             if(pen::Render::Get()->firstTime) pen::Render::Background(pen::PEN_WHITE);
 
             HandleUpdates();

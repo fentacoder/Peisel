@@ -104,7 +104,7 @@ public:
 
     static int ScreenToPexelX(float x) {
         /*Convert screen X coordinate to pixel buffer X coordinate*/
-        int resX = x * (float)pen::PixelBufferWidth() / (float)pen::Pen::ScreenWidth();
+        int resX = x * (float)pen::PixelBufferWidth() / (float)pen::PixelBufferWidth();
         if (resX < 0) x = 0;
         if (resX > pen::PixelBufferWidth()) resX = pen::PixelBufferWidth();
         return resX;
@@ -112,19 +112,19 @@ public:
 
     static int ScreenToPexelY(float y) {
         /*Convert screen Y coordinate to pixel buffer Y coordinate, there is an offset of CANVAS_TOP_MARGIN since that is the height of the nav bar*/
-        int resY = y * pen::PixelBufferHeight() / (pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN);
+        int resY = y * pen::PixelBufferHeight() / (pen::PixelBufferHeight() - CANVAS_TOP_MARGIN);
         if (resY < 0) y = 0;
-        if (resY > pen::PixelBufferHeight()) resY = pen::PixelBufferHeight();
+        if (resY > pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) resY = pen::PixelBufferHeight() - CANVAS_TOP_MARGIN;
         return resY;
     }
 
     static float PexelToScreenX(int x) {
         /*Convert pixel buffer X coordinate to screen X coordinate*/
-        return (x * pen::Pen::ScreenWidth() / pen::PixelBufferWidth());
+        return (x * pen::PixelBufferWidth() / pen::PixelBufferWidth());
     }
 
     static float PexelToScreenY(int y) {
         /*Convert pixel buffer Y coordinate to screen Y coordinate*/
-        return (y * (pen::Pen::ScreenHeight() - CANVAS_TOP_MARGIN) / pen::PixelBufferHeight());
+        return (y * (pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) / pen::PixelBufferHeight());
     }
 };

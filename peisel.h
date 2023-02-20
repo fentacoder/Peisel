@@ -65,6 +65,7 @@ public:
 
     void HandleUpdates() {
         CheckSave();
+        if (*PeiselState::Get()->mouseXPtr >= 0.0f && *PeiselState::Get()->mouseXPtr <= pen::PixelBufferWidth() && *PeiselState::Get()->mouseYPtr >= 0.0f && *PeiselState::Get()->mouseYPtr <= pen::PixelBufferHeight() - CANVAS_TOP_MARGIN) PeiselState::Get()->penActive = false;
         switch (PeiselState::Get()->appMode) {
         case PEISEL_DRAW:
             DrawMode();

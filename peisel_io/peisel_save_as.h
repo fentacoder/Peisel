@@ -73,7 +73,8 @@ void SavePng(pen::ui::Item* item, std::string fileName, bool confirmed) {
 				/*Converts pixel buffer to row_pointers*/
 				png_byte** rowPointers = new png_byte * [pen::PixelBufferHeight()];
 
-				int rowPos = (pen::PixelBufferWidth() * pen::PixelBufferHeight() * 4) - (pen::PixelBufferWidth() * 4);
+				/*One row is subtracted to start the row position at the right spot, the canvas top margin is also removed since it is not part of the drawing*/
+				int rowPos = (pen::PixelBufferWidth() * pen::PixelBufferHeight() * 4) - (pen::PixelBufferWidth() * 4) - (CANVAS_TOP_MARGIN * pen::PixelBufferWidth() * 4);
 				for (int y = 0; y < pen::PixelBufferHeight(); y++) {
 					rowPointers[y] = (png_byte*)(&pixels[rowPos]);
 					rowPos -= pen::PixelBufferWidth() * 4;
